@@ -1,0 +1,234 @@
+---
+title: "NBA Off-season Trading & Free-agent Signing Project"
+output: html_notebook
+---
+
+<!-- This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. -->
+
+<!-- Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. -->
+
+<!-- ```{r}
+plot(cars)
+``` -->
+
+<!-- Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*. -->
+
+<!-- When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file). -->
+
+<!-- The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed. -->
+
+## Part1: Salary Estimation
+
+### load data
+
+```{r}
+# load 2017/18 salary
+salary <- read.csv("data\\PlayerSalary.csv", stringsAsFactors=F)
+salary1718 <- salary[, c("Player", "X1718")]
+print(salary1718)
+```
+
+
+```{r}
+# load 2017/18 regular season player stats per game
+playerStatsPerGame1718 <- read.csv("data\\PlayerStatsPerGame1718.csv", stringsAsFactors=F)
+playerStatsPerGame1718 <- playerStatsPerGame1718[, c("Player", "Pos", "Tm", "Age", "G", "GS", "MP", "FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "eFGP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS")]
+print(playerStatsPerGame1718)
+```
+
+```{r}
+# merge salary and performance
+salaryData <- merge(salary1718, playerStatsPerGame1718, by="Player")
+print(salaryData)
+```
+
+### train model
+
+```{r}
+# random forest
+library(randomForest)
+salaryModel <- randomForest(X1718~Age+G+GS+MP+FG+FGA+FGP+X3P+X3PA+X3PP+X2P+X2PA+X2PP+eFGP+FT+FTA+FTP+ORB+DRB+TRB+AST+STL+BLK+TOV+PF+PTS, data=salaryData)
+print(importance(salaryModel))
+print(salaryModel)
+plot(salaryModel)
+```
+
+### make prediction
+
+```{r}
+# prediction by random forest model
+salaryPred <- predict(salaryModel, playerStatsPerGame1718)
+salaryPredName <- playerStatsPerGame1718[, c("Player")]
+salaryPred <- data.frame(salaryPredName, salaryPred)
+print(salaryPred)
+```
+
+## Part2: Game Result Estimation
+
+### load data
+
+```{r}
+# load 3 chars team id
+teamList <- read.csv("data\\TeamList.csv", stringsAsFactors=F)
+print(teamList)
+```
+
+```{r}
+# load 2017/18 regular season team stats per game
+teamStatsPerGame1718 <- read.csv("data\\TeamStatsPerGame1718.csv", stringsAsFactors=F)
+teamStatsPerGame1718 <- teamStatsPerGame1718[, c("Team", "FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS")]
+print(teamStatsPerGame1718)
+```
+
+```{r}
+# biuld dataset according to team game log
+# form: own avg stats, opp avg stats, W/L
+gameData = data.frame()
+for (i in 1:30) {
+    teamID <- teamList[,1][i]
+    teamData <- subset(teamStatsPerGame1718, Team==teamID, select=c("FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"))
+    teamLog <- read.csv(paste("data\\TeamGameLog1718\\", teamID, ".csv", sep=""), stringsAsFactors=F)
+    for (j in 1:82) {
+        oppTeamID <- teamLog[,"Opp"][j]
+        oppTeamData <- subset(teamStatsPerGame1718, Team==oppTeamID, select=c("FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"))
+        gameResult <- teamLog[,"W.L"][j]
+        newGameData <- data.frame(teamData[1:21], oppTeamData[1:21], gameResult)
+        gameData <- rbind(gameData, newGameData)
+    }
+}
+print(gameData)
+```
+
+### train model
+
+```{r}
+library(randomForest)
+gameModel <- randomForest(gameResult~., data=gameData)
+print(importance(gameModel))
+print(gameModel)
+plot(gameModel)
+```
+
+### make prediction
+
+```{r}
+# prediction by random forest model
+gamePredData = data.frame()
+for (i in 1:30) {
+    teamID <- teamList[,1][i]
+    teamData <- subset(teamStatsPerGame1718, Team==teamID, select=c("FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"))
+    for (j in 1:30) {
+        if (i != j) {
+            oppTeamID <- teamList[,1][j]
+            oppTeamData <- subset(teamStatsPerGame1718, Team==oppTeamID, select=c("FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"))
+            newGameData <- data.frame(teamID, oppTeamID, teamData[1:21], oppTeamData[1:21])
+            gamePredData <- rbind(gamePredData, newGameData)
+        }
+    }
+}
+gamePred <- predict(gameModel, gamePredData)
+gamePredName <- gamePredData[, c("teamID", "oppTeamID")]
+gamePred <- data.frame(gamePredName, gamePred)
+print(gamePred)
+```
+
+## Part3: Team Quality Estimation
+
+### define predict function
+
+```{r}
+# define function which calculate team avg data according to a list of players
+playersToTeamData <- function(team){
+    playersData <- data.frame()
+    for (i in 1:nrow(team)) {
+         playerData <- subset(playerStatsPerGame1718, Player==team[,1][i], select=c("MP", "FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"))
+        playersData <- rbind(playersData, playerData)
+    }
+    totalMP = sum(playersData[,"MP"])
+    factor = 240 / totalMP
+    teamFG = sum(playersData[,"FG"])*factor
+    teamFGA = sum(playersData[,"FGA"])*factor
+    teamFGP = teamFG / teamFGA
+    teamX3P = sum(playersData[,"X3P"])*factor
+    teamX3PA = sum(playersData[,"X3PA"])*factor
+    teamX3PP = teamX3P / teamX3PA
+    teamX2P = sum(playersData[,"X2P"])*factor
+    teamX2PA = sum(playersData[,"X2PA"])*factor
+    teamX2PP = teamX2P / teamX2PA
+    teamFT = sum(playersData[,"FT"])*factor
+    teamFTA = sum(playersData[,"FTA"])*factor
+    teamFTP = teamFT / teamFTA
+    teamORB = sum(playersData[,"ORB"])*factor
+    teamDRB = sum(playersData[,"DRB"])*factor
+    teamTRB = sum(playersData[,"TRB"])*factor
+    teamAST = sum(playersData[,"AST"])*factor
+    teamSTL = sum(playersData[,"STL"])*factor
+    teamBLK = sum(playersData[,"BLK"])*factor
+    teamTOV = sum(playersData[,"TOV"])*factor
+    teamPF = sum(playersData[,"PF"])*factor
+    teamPTS = sum(playersData[,"PTS"])*factor
+    teamData = data.frame(FG=c(teamFG), FGA=c(teamFGA), FGP=c(teamFGP), X3P=c(teamX3P), X3PA=c(teamX3PA), X3PP=c(teamX3PP), X2P=c(teamX2P), X2PA=c(teamX2PA), X2PP=c(teamX2PP), FT=c(teamFT), FTA=c(teamFTA), FTP=c(teamFTP), ORB=c(teamORB), DRB=c(teamDRB), TRB=c(teamTRB), AST=c(teamAST), STL=c(teamSTL), BLK=c(teamBLK), TOV=c(teamTOV), PF=c(teamPF), PTS=c(teamPTS))
+    return(teamData)
+}
+
+# define function to predict team quality
+teamQualityPredictFunction <- function(team, echo=1000) {
+    teamData = playersToTeamData(team)
+    PG1 = subset(playerStatsPerGame1718, Pos=="PG"&G>50&MP>=25, select=c("Player"))
+    PG2 = subset(playerStatsPerGame1718, Pos=="PG"&G>50&MP>10&MP<25, select=c("Player"))
+    SG1 = subset(playerStatsPerGame1718, Pos=="SG"&G>50&MP>=25, select=c("Player"))
+    SG2 = subset(playerStatsPerGame1718, Pos=="SG"&G>50&MP>10&MP<25, select=c("Player"))
+    SF1 = subset(playerStatsPerGame1718, Pos=="SF"&G>50&MP>=25, select=c("Player"))
+    SF2 = subset(playerStatsPerGame1718, Pos=="SF"&G>50&MP>10&MP<25, select=c("Player"))
+    PF1 = subset(playerStatsPerGame1718, Pos=="PF"&G>50&MP>=25, select=c("Player"))
+    PF2 = subset(playerStatsPerGame1718, Pos=="PF"&G>50&MP>10&MP<25, select=c("Player"))
+    C1 = subset(playerStatsPerGame1718, Pos=="C"&G>50&MP>=25, select=c("Player"))
+    C2 = subset(playerStatsPerGame1718, Pos=="C"&G>50&MP>10&MP<25, select=c("Player"))
+    teamQualityPredData = data.frame()
+    for (i in 1:echo) {
+        PGIndex1 <- sample(1:nrow(PG1), 1)
+        PGIndex2 <- sample(1:nrow(PG2), 1)
+        SGIndex1 <- sample(1:nrow(SG1), 1)
+        SGIndex2 <- sample(1:nrow(SG2), 1)
+        SFIndex1 <- sample(1:nrow(SF1), 1)
+        SFIndex2 <- sample(1:nrow(SF2), 1)
+        PFIndex1 <- sample(1:nrow(PF1), 1)
+        PFIndex2 <- sample(1:nrow(PF2), 1)
+        CIndex1 <- sample(1:nrow(C1), 1)
+        CIndex2 <- sample(1:nrow(C1), 1)
+        oppPlayers = c(PG1[,"Player"][PGIndex1], PG2[,"Player"][PGIndex2], SG1[,"Player"][SGIndex1], SG2[,"Player"][SGIndex2], SF1[,"Player"][SFIndex1], SF2[,"Player"][SFIndex2], PF1[,"Player"][PFIndex1], PF2[,"Player"][PFIndex2], C1[,"Player"][CIndex1], C2[,"Player"][CIndex2])
+        oppTeam = data.frame(Player=oppPlayers)
+        oppTeamData = playersToTeamData(oppTeam)
+        newGameData <- data.frame(teamData, oppTeamData)
+        teamQualityPredData <- rbind(teamQualityPredData, newGameData)
+    }
+    gamePred <- predict(gameModel, teamQualityPredData)
+    gamePred = data.frame(Result=gamePred)
+    return(100 * nrow(subset(gamePred, Result=="W")) / nrow(gamePred))
+}
+```
+
+### simple test
+```{r}
+# test with best team
+playerList <- c("Stephen Curry", "Russell Westbrook", "James Harden", "DeMar DeRozan", "LeBron James", "Kevin Durant", "Anthony Davis", "LaMarcus Aldridge", "DeMarcus Cousins", "DeAndre Jordan")
+team <- data.frame(player=playerList)
+print(teamQualityPredictFunction(team))
+```
+
+### real test
+```{r}
+realTestResult = data.frame()
+for (i in 1:30) {
+    teamID = teamList[,1][i]
+    team = subset(playerStatsPerGame1718, Tm==teamID, select=c("Player", "MP"))
+    #select 12 players
+    team = team[order(-team$MP),][1:12,]
+    team = data.frame(Player=team$Player)
+    teamQuality = teamQualityPredictFunction(team)
+    teamResult = data.frame(Team=teamID, Quality=teamQuality)
+    realTestResult = rbind(realTestResult, teamResult)
+}
+realTestResult = realTestResult[order(-realTestResult$Quality),]
+print(realTestResult)
+```
