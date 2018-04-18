@@ -1,5 +1,5 @@
 # project
 
-This repository is your repository for containing assets for your final project. It should include all supporting documentation, any files, code, reports and (possibly) the data to run your project.  
+RNotebook are used in this project.
 
-You should replace this README.md file with a proper description of your project.
+Analysis are located in NBAProject.RMD. The results are located in NBAProject.nb.html. Project evaluation are located in project-performance.RMD. Clean datasets are located in \data folder.
