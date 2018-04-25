@@ -1,0 +1,80 @@
+---
+title: "NBA Off-season Trade and Free-agent Signing Research"
+author: "Chongxi Wang"
+date: "April 10, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+### Background
+The National Basketball Association (NBA) is a men's professional basketball league in North America, which is composed of 30 teams. Every summer, after player off, in this period which is called off-season, every team performs several off-season tasks such as draft, trade, free-agent signing. A free-agent, who has no current contract, can sign a contract with any team. Palyers with contract can be traded over different teams. Every team has the same salary cap.
+
+### Problem Introduction
+Every off-season, there are great many trades and free-agent signings. Some are pretty wonderful, for example, Miami Heat signed Lebron James and Chris Bosh in 2012 and then opened the Heat dynasty. Some are really bad, Nets traded for Kevin Garnett and Paul Pierce by 3 first-round pick and lost the hope of rebuilding. Therefore, within the league salary cap, it is vital significant for NBA managers to decide how to sign and trade to build a better team.
+
+### Relevent Research
+Actually there must be a number of researches about this topic since those NBA data analysts are well-paid. But there still exist many trading and signing mistakes and I would like to finish my own analysing version.
+
+
+## Problem Statement
+
+### Objects
+There are several phase of this research. Player's salary, individaul performance and team quality will be analysed.
+
+### subproblems
+1. The first subproblem is to Estimating reasonable salary of a player by his performance to avoid premium contract.
+2. The quality of a team is not the sum of individual abilities. The Second subproblem is to estimating the quality of a team by a gather of players.
+3. The ultimate goal is to list potential signing and trade and analyse each situation to provide suggestion.
+
+### Conclusion
+Concisely, this is an optimization problem over the team quality metrics with constrains.
+
+
+## Prospect
+
+### Expectant Result
+1. Estimator to estimate salary according to performance.
+2. Estimator to estimate overall quality of a team.
+3. Advisor to provide optimal trade and signing advice.
+
+### Stakeholders and Benefits
+1. Players. At first players can know their reasonable salaries and avoid disaster like Isiah Thomas was traded because of his excessive expectation of salary. Secondly, players can be aware of who to be appropriate teammate and make correct decision on the team to sign.
+2. Undoubtedly, the biggest beneficiaries are NBA managers. At first, they can avoid the mistake to sign players with premium contract such as contract of Chandler Parsons. Secondly, managers can perform optimal trades signings to build a top-quality team.
+
+
+## implementation
+
+### Data Source
+1. <https://www.basketball-reference.com>
+
+### Part1: Salary Estimation
+Use player's standardized salary(according to the salary cap in the beginning of the contract) and performance in this season to build a model. Then the trained model can estimate salary according to arbitrary performance.
+
+This model can be build in 1 week.
+
+### Part2: Team Quality Estimation
+There are 3 index to judge the quality of a team: offence, defence and overall. Individual stats, team basic stats and def/off effciency value can be used to build the model.
+
+This model can be build in 2 weeks.
+
+### Part3: Signing and Trading Suggestion
+The namelist of free-agents is decided. We can analyse team quality in every situation when free-agents join in. Then select the optimal situation within the salary cap.
+
+As for trading, there are too many combiantions. That managers enter trade details and then analyse should be a reasonable solution.
+
+Once the first two part is finished, this part is easy to complete.
+
+## Result evaluation
+1. Contracts signed in this summer can be validation set of the salary model.
+2. Game result in any season can be validation set of the team quality model.
+
+## Risk Analysis
+If the train model perform not good, there are several improvement approaches.
+
+1. The first approach is to expand dataset. The model will be more accurate with larger dataset.
+2. The second approach is to change algorithm and model. Perhaps different model will bring surprising result.
