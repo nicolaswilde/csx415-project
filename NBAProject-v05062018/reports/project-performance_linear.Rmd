@@ -1,0 +1,81 @@
+---
+title: "project-performance"
+author: "Chongxi Wang"
+date: "Apr 24, 2018"
+output:
+  html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Model Evaluation
+
+### Part1 Salary Estimation
+
+At first, let us see the result.
+
+```{r}
+source('..\\tests\\SalaryPredTest_lm.R')
+```
+
+Then, let us see the real salaries.
+
+```{r}
+salary <- read.csv("..\\data\\PlayerSalary.csv", stringsAsFactors=F)
+salary_1718 <- salary[, c("Player", "X1718")]
+print(salary_1718)
+```
+
+In the result of linear model, generally speaking, good players earn high salaries and bad players earn low salaries. However, the prediction is not precise. In addition, the most important problem of linear model is that the result contains negative salary, which is unbearable.
+
+### Part2 Game Result Estimation
+
+At first, let us see the result. Positive game_pred means lose the game while negative game_pred means win the game.
+
+```{r}
+source('..\\tests\\GamePredTest_lm.R')
+```
+
+Then, let us see the real game result.
+```{r}
+team_list <- read.csv("..\\data\\TeamList.csv", stringsAsFactors=F)
+game_data = data.frame()
+for (i in 1:30) {
+    team_id <- team_list[,1][i]
+    team_log <- read.csv(paste("..\\data\\TeamGameLog1718\\", team_id, ".csv", sep=""), stringsAsFactors=F)
+    team_col = rep(team_id, 82)
+    team_log <- data.frame(Team=team_col, team_log)
+    game_data <- rbind(game_data, team_log)
+}
+print(game_data)
+```
+
+In the result of linear model, generally speaking, top teams usually defeat weak teams. But the prediction is more like the result of a series. The error of a single game, which holds about 40% is inevitable because the results of several games between the same teams are usually different.
+
+### Part3 Team Quality Estimation
+
+At first, let us see the result.
+
+```{r}
+source('..\\tests\\TeamQualityPredTest_lm.R')
+```
+
+Then, let us see the real NBA standings.
+
+![2017/18 NBA Conference Rankings](../graphs/ConferenceStandings.JPG)
+
+From the form, the prediction result is not good. But roughly the playoff teams are still ranking in the first 16 teams.
+
+### Part4 Trading & Signing Proposal
+
+todo..
+
+## Project Evaluation
+
+The most valuable part of this project is the Trading & Signing Proposal part, which is not done yet.
+
+At present, the models are able to roughly predict the results. In the next step, I will list possible trading & signing choices and calculate each team quality after operation to find an optimal operation.
+
+Those trades and signings in 2017-18 season can be used to evaluating this project.

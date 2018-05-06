@@ -1,0 +1,59 @@
+---
+title: "project-performance"
+author: "Chongxi Wang"
+date: "Apr 17, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Layout
+
+My project uses RNotebook.
+
+Analyzing process and result are located in NBAProject.RMD
+
+All datasets are located in \\data folder
+
+
+## Model Evaluation
+
+### Part1 Salary Estimation
+
+You can find the salary estimation in the form under line 64 in NBAProject.RMD.
+
+The model uses random forest algorithm.
+
+Compared to the real contract of players, the prediction of this model is not good. Actually you can notice that the model has a significant traning error, which is about 2*10^13 in the plot under line 53 in NBAProject.RMD. 
+
+I will improve this model in the next week. In reality, the salary cap improves year by year. For example, the average amount of contracts signed in 2016 is much lower than in 2017. I will calculate the conversion of salary according to salary cap in every year.
+
+### Part2 Game Result Estimation
+
+You can find the game result estimation in the form under line 132 in NBAProject.RMD.
+
+I use 2460 games in 2017-18 regular season to train a model. The model has still a large traning error, which is about 40%. However, the error is inevitable because the results of several games between the same teams are usually different.
+
+I will try to improve the model by adding more detail to game logs.
+
+### Part3 Team Quality Estimation
+
+You can find the quality estimation of the current 30 NBA teams in the form under line 233 in NBAProject.RMD.
+
+I randomly generate n(default 1000, limited by the ability of my computer) virtual teams and then predict the game result between each real NBA team and the virtual teams. The quality is temporarily equls win rate.
+
+From the form, the prediction result is roughly the real regular season ranking in 2017-18 season. The exception is Houston Rocket, which ranks 1st in reality but ranks 23th in my prediction. There must be something wrong with Rocket... I will work on it.
+
+### Part4 Trading & Signing Proposal
+
+I haven't done this part yet.
+
+## Project Evaluation
+
+The most valuable part of this project is the Trading & Signing Proposal part, which is not done yet.
+
+At present, the models are able to roughly predict the results. In the next step, I will list possible trading & signing choices and calculate each team quality after operation to find an optimal operation.
+
+Those trades and signings in 2017-18 season can be used to evaluating this project.
