@@ -1,0 +1,106 @@
+---
+title: "NBATools package demo"
+author: "Chongxi Wang"
+date: "May 25, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Package
+
+You should install "NBATools" first. You can find the instruction in "README.md".
+
+```{r}
+library(NBATools)
+```
+
+## Demo1: Salary Prediction
+
+```{r}
+print(salaryPred("LeBron James"))
+```
+
+```{r}
+print(salaryPred("Stephen Curry"))
+```
+
+## Demo2: Game Result Prediction
+
+Prepare data.
+
+```{r}
+CLE = subset(player_salary, Tm=="CLE", Player)[,1]
+GSW = subset(player_salary, Tm=="GSW", Player)[,1]
+```
+
+Predict CLE vs GSW, CLE loses.
+
+```{r}
+print(gamePred(CLE, GSW))
+```
+
+## Demo3: Team Quality Prediction
+
+Prepare data.
+
+```{r}
+CLE = subset(player_salary, Tm=="CLE", Player)[,1]
+BOS = subset(player_salary, Tm=="BOS", Player)[,1]
+```
+
+Predict the quality of CLE with accuracy = 1000.
+
+```{r}
+print(teamQualityPred(CLE, accuracy=1000))
+```
+
+Predict the quality of BOS with accuracy = 500.
+
+```{r}
+print(teamQualityPred(BOS, accuracy=500))
+```
+
+## Demo4: Free-Agent Signing Proposal
+
+Prepare data.
+
+```{r}
+CLE = subset(player_salary, Tm=="CLE", Player)[,1]
+BOS = subset(player_salary, Tm=="BOS", Player)[,1]
+```
+
+Provide signing proposal of CLE with salary cap = 130000000 and accuracy = 10.
+
+```{r}
+freeAgentProp(CLE, cap=130000000, accuracy=10)
+```
+
+Provide signing proposal of BOS with salary cap = 121000000 and accuracy = 20.
+
+```{r}
+freeAgentProp(BOS, cap=121000000, accuracy=20)
+```
+
+## Demo5: Trade Proposal
+
+Prepare data.
+
+```{r}
+CLE_before <- c("LeBron James", "Kevin Love", "Tristan Thompson", "J.R. Smith", "Kyle Korver", "Cedi Osman", "Jose Calderon", "Jeff Green", "Ante Zizic", "Isaiah Thomas", "Dwyane Wade", "Derrick Rose", "Channing Frye", "Iman Shumpert", "Jae Crowder")
+CLE_after <- subset(player_salary, Tm=="CLE", Player)[,1]
+print("Player list before trade:")
+print(CLE_before)
+print("Player list after trade:")
+print(CLE_after)
+```
+
+Provide trade proposal of a certain trade.
+
+```{r}
+tradeProp(CLE_before, CLE_after, accuracy=1000)
+```

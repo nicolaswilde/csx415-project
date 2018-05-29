@@ -1,8 +1,8 @@
-# NBAProject-v04242018
+# NBAProject-v05252018
 
 ## version
 
-Apr 24, 2018
+May 25, 2018
 
 
 ## log
@@ -29,6 +29,46 @@ The lm-based codes are located in /src/xxx_lm.R and the rpart codes are located 
 
 Signing and trade proposal part is still waiting to be done.
 
+### May 6, 2018
+
+Package "devtools" is used to build my own package "NBATools", which located in /pkgs/NBATools.
+
+How to install "NBATools"?
+
+- Use RStudio
+
+    - setwd("yourpath/csx415-project\NBAProject-v05062018\pkgs\NBATools")
+
+    - library(devtools)
+
+    - install(".")
+
+- Use Rscript
+
+    - cd yourpath/csx415-project\NBAProject-v05062018\pkgs\NBATools
+
+    - Rscript setup.R
+
+Simple test has been designed to test package "NBATools", you can test
+
+- Use Rstudio
+
+    - setwd("yourpath/csx415-project\NBAProject-v05062018\pkgs\NBATools")
+
+    - library(devtools)
+
+    - test()
+
+### May 25, 2018
+
+Finish Part4 Free-Agent Signing Proposal and Part5 Trade proposal
+
+Add function freeAgentProp() and tradeProp() to package "NBATools"
+
+Finish deployment, which located in /deploy folder
+
+Redo model measurement, which located in /deploy/project-performance.Rmd
+
 ## layout
 
 From this version, ProjectTemplate is used.
@@ -36,9 +76,13 @@ From this version, ProjectTemplate is used.
 However, I do not like 'RStudio + ProjectTemplate' management mode.
 Therefore, I only use ProjectTemplate to create the project layout and I never use the other functions provided in ProjectTemplate.
 
+/pkgs folder contains:
+
+- package "NBATools". You can find the install instruction in log on May 6, 2018. A test demo is located in /pkgs/NBATools/tests/testthat/test.R
+
 /data folder contains:
 
-- All datasets
+- All datasets for training
 
 /src folder contains:
 
@@ -49,9 +93,7 @@ Each .R file has 3 version: linear model(lm), CART(rpart), and random forest(rf)
 
 - A html file, 'NBAProject.nb.html', which is the product of 'NBAProject.Rmd'
 
-/tests folder contains:
-
-- Test codes for every .R file in /src folder
+- Actually, the codes in /src are just experiments, the final version codes are located in /pkgs and the model measurement are located in /report/project-performance.Rmd
 
 /reports folder contains
 
@@ -59,43 +101,4 @@ Each .R file has 3 version: linear model(lm), CART(rpart), and random forest(rf)
 
 - project-performance.Rmd (Assignment 2)
 
-- project-performance-linear.Rmd (Assignment 3)
-
-- project-performance-rpart.Rmd (Assignment 3)
-
-- NBAProject.Rmd (R notebook of the best version, which is random forest currently)
-
 And the html outputs of those R markdown / notebook files.
-
-## codes management
-
-### individual .R file layout
-
-.R files in /src folder follow the layout:
-
-- definition of functional functions
-- definition of main function
-
-.R files in /tests folder follow the layout:
-
-- definition of test function
-- call test function
-
-### test .R files
-
-I have never used 'RStudio + ProjectTemplate' to manage the .R files but you can try it.
-
-Execute 'Rscript xxxTest.R' in /tests folder is a valid way to run any xxxTest.R file.
-
-Though there exist function calls among different .R files, .R files dependency has been handled. You can execute 'Rscript xxxTest.R' with any individual test file and I promise it works.
-
-For example, you can run 'Rscript SalaryPredTest.R' in /tests folder to test the SalaryPred model and get predicted salary of all NBA players.
-
-If you would like to write your own test case, you can open a new .R file, then (also take SalaryPred as an example)
-
-```{r}
-source('path\\SalaryPred.R')
-model = salaryPredTrain()
-data = ... # your data, which conform to the format given in SalaryPred.R
-result = salaryPred(model, data)
-```

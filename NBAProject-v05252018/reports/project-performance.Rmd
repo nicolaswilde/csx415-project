@@ -1,0 +1,135 @@
+---
+title: "project-performance"
+author: "Chongxi Wang"
+date: "Apr 17, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(caret)
+```
+
+## Salary Prediction Model Performance
+
+Prepare data.
+
+```{r}
+# load 3 chars team id
+team_list <- read.csv("..\\data\\TeamList.csv", stringsAsFactors=F)
+print(team_list)
+
+# load 2017/18 regular season team stats per game
+team_stats_per_game_1718 <- read.csv("..\\data\\TeamStatsPerGame1718.csv", stringsAsFactors=F)
+team_stats_per_game_1718 <- team_stats_per_game_1718[, c("Team", "FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS")]
+print(team_stats_per_game_1718)
+
+# biuld dataset according to team game log
+# format: own avg stats, opp avg stats, W/L
+game_data = data.frame()
+for (i in 1:30) {
+    team_id <- team_list[,1][i]
+    team_data <- subset(team_stats_per_game_1718, Team==team_id, select=c("FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"))
+    team_log <- read.csv(paste("..\\data\\TeamGameLog1718\\", team_id, ".csv", sep=""), stringsAsFactors=F)
+    for (j in 1:82) {
+        opp_team_id <- team_log[,"Opp"][j]
+        opp_team_data <- subset(team_stats_per_game_1718, Team==opp_team_id, select=c("FG", "FGA", "FGP", "X3P", "X3PA", "X3PP", "X2P", "X2PA", "X2PP", "FT", "FTA", "FTP", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"))
+        game_result <- team_log[,"W.L"][j]
+        new_game_data <- data.frame(team_data[1:21], opp_team_data[1:21], game_result)
+        game_data <- rbind(game_data, new_game_data)
+    }
+}
+print(game_data)
+```
+Data partition.
+
+```{r}
+inTrain <- createDataPartition(y=game_data$game_result, p=0.75, list=FALSE)
+training <- game_data[inTrain,]
+testing <- game_data[-inTrain,]
+print(nrow(training))
+print(nrow(testing))
+```
+
+### Model 1: linear model.
+
+Train model.
+
+```{r}
+game_model_lm <- train(game_result~., data=training, method="glm")
+```
+
+Test model.
+
+```{r}
+game_pred_lm <- predict(game_model_lm, newdata=testing)
+```
+
+Model performance.
+
+```{r}
+confusionMatrix(game_pred_lm, testing$game_result)
+```
+
+### Model 2: CART model.
+
+Train model.
+
+```{r}
+game_model_cart <- train(game_result~., data=training, method="rpart")
+```
+
+Test model.
+
+```{r}
+game_pred_cart <- predict(game_model_cart, newdata=testing)
+```
+
+Model performance.
+
+```{r}
+confusionMatrix(game_pred_cart, testing$game_result)
+```
+
+### Model 3: Random forest model.
+
+Train model.
+
+```{r}
+game_model_rf <- train(game_result~., data=training, method="rf")
+```
+
+Test model.
+
+```{r}
+game_pred_rf <- predict(game_model_rf, newdata=testing)
+```
+
+Model performance.
+
+```{r}
+confusionMatrix(game_pred_rf, testing$game_result)
+```
+
+### Model 4: Adaboost model.
+
+Train model.
+
+```{r}
+game_model_ada <- train(game_result~., data=training, method="adaboost")
+```
+
+Test model.
+
+```{r}
+game_pred_ada <- predict(game_model_ada, newdata=testing)
+```
+
+Model performance.
+
+```{r}
+confusionMatrix(game_pred_ada, testing$game_result)
+```
