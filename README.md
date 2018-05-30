@@ -78,7 +78,7 @@ Therefore, I only use ProjectTemplate to create the project layout and I never u
 
 /pkgs folder contains:
 
-- package "NBATools". You can find the install instruction in log on May 6, 2018. A test demo is located in /pkgs/NBATools/tests/testthat/test.R
+- package "NBATools". You can find the install instruction in /pkgs/NBATools/README.md. A test demo is located in /pkgs/NBATools/tests/testthat/test.R
 
 /data folder contains:
 
@@ -86,14 +86,7 @@ Therefore, I only use ProjectTemplate to create the project layout and I never u
 
 /src folder contains:
 
-- All .R source, including 'SalaryPred_xxx.R', 'GamePred_xxx.R', 'TeamQualityPred_xxx.R', 'SigningProposal_xxx.R', and 'TradeProposal_xxx.R'.
-Each .R file has 3 version: linear model(lm), CART(rpart), and random forest(rf).
-
-- A R notebook, 'NBAProject.Rmd', which includes all the source code and shows the project result
-
-- A html file, 'NBAProject.nb.html', which is the product of 'NBAProject.Rmd'
-
-- Actually, the codes in /src are just experiments, the final version codes are located in /pkgs and the model measurement are located in /report/project-performance.Rmd
+- codes related to model training & testing, including salary model and game result model.
 
 /reports folder contains
 
@@ -101,4 +94,20 @@ Each .R file has 3 version: linear model(lm), CART(rpart), and random forest(rf)
 
 - project-performance.Rmd (Assignment 2)
 
+- demo.Rmd
+
 And the html outputs of those R markdown / notebook files.
+
+
+## code management
+
+There two sets of codes
+
+1. Codes related to model training & testing, including salary model and game result model. Located in /src.
+
+2. Codes related to model application, including team quality prediction, free agent signing proposal, and trade proposal. Located in /pkgs/NBATools/R.
+
+
+
+Model performance is located in /report/project-performance.Rmd.
+
