@@ -1,3 +1,5 @@
+Rscript is used to deploy this project.
+
 ## Instruction
 
 1. Install "NBATools" package. More details in /pkgs folder.
